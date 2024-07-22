@@ -1,0 +1,22 @@
+// Reset page
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+* { box-sizing: border-box;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    margin : 0;
+    padding: 0;
+  }
+
+html { color:#2c3e50; 
+       text-align: center; 
+     }
+
+// Delete text decoration link
+a {text-decoration: none;}  
+
+.bg-dark {background: #12002b;}

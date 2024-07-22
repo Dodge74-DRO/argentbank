@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../../redux/store.jsx';
 import { isValidEmail, isValidPassword } from '../../utils/checkEntriesLogin.jsx';
 import { getUserToken } from '../../utils/getUserToken.jsx';
 import './loginform.scss';
@@ -15,7 +13,6 @@ function LoginForm() {
     const [errorMessage, setErrorMessage] = useState('');
 
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     /* Asynchronous form function */
     const handleSubmit = async (event) => {
@@ -33,13 +30,11 @@ function LoginForm() {
         /* soumettre au serveur pour récupération du token */
         const token = await getUserToken(email, password);
         if (token) {
-            dispatch(loginUser(token));
-            console.log(token)
+//            dispatch(loginUser(token)); on laisse null pour maj profile dans Header
             sessionStorage.setItem("token", token);
             if (rememberMe) {
                 localStorage.setItem("token", token);
             }
-            /* aller à la page profile/accounts */
             navigate('/profile');
         } else {
             setErrorMessage("Incorrect email/password");

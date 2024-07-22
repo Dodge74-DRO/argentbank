@@ -18,8 +18,6 @@ export const getUserData = async (token) => {
                 lastName: response.data.body.lastName,
                 userName: response.data.body.userName
             }
-            /* sauvegarder les valeurs user */
-            /*console.log(userData);*/
             return userData
         };
     } catch (error) {

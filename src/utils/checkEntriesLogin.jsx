@@ -22,7 +22,6 @@ export const isValidDateToken = (token) => {
     const currentTime = Date.now() / 1000; // Le temps actuel en secondes
     // Vérifier si le token est expiré
     let isValid = true
-    /*console.log(decoded.exp,currentTime)*/
     if (decoded.exp < currentTime) {
         isValid = false
     };

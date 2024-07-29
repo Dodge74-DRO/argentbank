@@ -4,7 +4,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 export const LOGIN_USER = "LOGIN_SUCCESS";
 export const LOGOUT_USER = "LOGOUT_USER";
 
-// Initial state pour Log
+// Initialisation state pour Log
 const initialAuthState = {
     token: null,
 };
@@ -41,7 +41,7 @@ export const authentification = (state = initialAuthState, action) => {
 export const GET_USERPROFILE = "GET_USERPROFILE";
 export const EDIT_USERNAME = "EDIT_USERNAME";
 
-// Initial utilisateur state
+// Initialisation utilisateur state
 const initialUserState = {
     userData: {
         id: '',

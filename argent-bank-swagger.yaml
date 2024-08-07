@@ -104,7 +104,7 @@ paths:
 #
 # Récupération des comptes bancaires de l'utilisateur selon son token (idem user/profile)
 #
-  /user/accounts:
+  /users/{userId}/accounts:
     get:
       tags:
         - Account(s) Module
@@ -112,6 +112,12 @@ paths:
       description: API pour récupérer les comptes bancaires d'un utilisateur avec son token
       security:
         - Bearer: []
+      parameters:
+        - name: userId
+          in: path
+          description: ID du user connecté
+          required: true
+          type: integer
       responses:
         '200':
           description: Liste des compte(s) récupérés avec succès
@@ -148,10 +154,10 @@ paths:
 #
 # Récupération des transactions d'un compte pour 1 mois
 #
-  /account/{accountId}/transactions:
+  /accounts/{accountId}/transactions:
     get:
       tags:
-        - Transaction(s) Module
+        - Transactions Module
       summary: Read Transactions for  1 Account and 1 month
       description: API pour récupérer les mouvements 1 compte sur 1 mois
       security:
@@ -176,7 +182,9 @@ paths:
         '200':
           description: Transactions récupérées avec succès
           schema:
-            $ref: "#/definitions/getTransactionBody"
+            type: array  # retourne un tableau
+            items:
+              $ref: "#/definitions/transactionBody"
         '401':
           description: Authentification requise pour accéder à la ressource.
         '403':
@@ -188,7 +196,7 @@ paths:
 #
 # Récupération d'une transaction en fonction de son Id 
 #
-  /transaction/{transactionId}:
+  /transactions/{transactionId}:
     get:
       tags:
         - Transactions Module
@@ -204,7 +212,7 @@ paths:
           type: integer
       responses:
         '200':
-          description: Transactions récupérées avec succès
+          description: Détails de la transaction récupérés avec succès
           schema:
             $ref: "#/definitions/transactionBody"
         '401':
@@ -215,11 +223,11 @@ paths:
           description: transactions non trouvé
         '500':
           description: Erreur interne du serveur
-    put:
+    patch:
       tags:
         - Transactions Module
       summary: Update Transaction
-      description: API pour mettre à jour le détail d'une transaction categorie et note perso
+      description: API pour mettre à jour la catégorie et/ou la note personnelle
       security:
         - Bearer: []
       parameters:
@@ -238,7 +246,9 @@ paths:
         '200':
           description: La mise à jour a été efectuée avec succès
           schema:
-            $ref: "#/definitions/ApiResponse"
+            $ref: "#/definitions/transactionBody"
+        '401':
+          description: Authentification requise pour accéder à la ressource.
         '403':
           description: Accès à la ressource refusé !
         '404':
@@ -248,11 +258,11 @@ paths:
 #
 # Récupération de la liste des categories établie par la banque
 #
-  /transactions/categories:
+  /transaction_categories:
     get:
       tags:
-        - Categories Module
-      summary: Récupération de la liste des catégories des transactions définie par la banque
+        - Categories Transactions Module
+      summary: Récupération de la liste des catégories de transaction définie par la banque
       security:
         - Bearer: []
       responses:
@@ -273,10 +283,6 @@ paths:
                   example: "Food"#
         '401':
           description: Authentification requise pour accéder à la ressource.
-        '403':
-          description: Accès à la ressource refusé !
-        '404':
-          description: catégories non trouvées
         '500':
           description: Erreur interne du serveur
 #
@@ -338,19 +344,13 @@ definitions:
       userName:
         type: string
 # 
-  getTransactionBody:
+  transactionBody:
     type: object
     properties:
       transactionId:
         type: integer
         description: Id de la transaction
         example: 1
-      schema:
-        $ref: "#/definitions/transactionBody"
-#
-  transactionBody:
-    type: object
-    properties:
       type:
         type: string
         description: Transaction type

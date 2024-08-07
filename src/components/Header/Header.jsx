@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { isValidDateToken } from '../../utils/checkEntriesLogin.jsx';
 import { getUserData } from '../../utils/getUserData.jsx';
 
-import Logo from '../../assets/images/argentBankLogo.png';
+import Logo from '../../assets/images/argentBankLogo.webp';
 import './header.scss';
 
 function Header() {

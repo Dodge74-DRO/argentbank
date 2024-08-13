@@ -1,0 +1,396 @@
+swagger: '2.0'
+info:
+  title: Bank Argent API documentation
+  description: Contains all available API endpoints in this codebase
+  version: '1.1.0'
+  termsOfService: 'http://swagger.io/terms/'
+host: localhost:3001
+basePath: /api/v2
+schemes:
+  - http
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Login Successfully
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for Signup
+      parameters:
+        - in: body
+          name: body
+          description: Signup Payload
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Signup Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/profile:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for fetching a user profile
+      #produces:
+       # - application/json
+      responses:
+        '200':
+          description: User profile retrieved successully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for updating a user profile
+      parameters:
+        - in: body
+          name: body
+          description: Update user profile attributes
+          required: true
+          schema:
+            $ref: '#/definitions/UserProfile'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User profile retrieved successully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+#
+# Récupération des comptes bancaires de l'utilisateur selon son token (idem user/profile)
+#
+  /users/{userId}/accounts:
+    get:
+      tags:
+        - Account(s) Module
+      summary: Read Accounts of a User
+      description: API pour récupérer les comptes bancaires d'un utilisateur avec son token
+      security:
+        - Bearer: []
+      parameters:
+        - name: userId
+          in: path
+          description: ID du user connecté
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Liste des compte(s) récupérés avec succès
+          schema:
+            type: array  # retourne un tableau
+            items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: Id de la transaction
+                    example: 1
+                  name:
+                    type: string
+                    description: nom du compte
+                    example: "compte courant Mr Dupond"
+                  currency:
+                    type: string
+                    description: devise du compte
+                    example: "$"
+                  balance:
+                    type: number
+                    format: double
+                    description: solde du compte
+                    example: 1234.56
+        '401':
+          description: Une authentification est nécessaire pour cette opération
+        '403':
+          description: Accès à la ressource refusé !
+        '404':
+          description: la ressource n'existe pas !
+        '500':
+          description: Erreur interne du serveur
+#
+# Récupération des transactions d'un compte pour 1 mois
+#
+  /accounts/{accountId}/transactions:
+    get:
+      tags:
+        - Transactions Module
+      summary: Read Transactions for  1 Account and 1 month
+      description: API pour récupérer les mouvements 1 compte sur 1 mois
+      security:
+        - Bearer: []
+      parameters:
+        - name: accountId
+          in: path
+          description: ID du compte
+          required: true
+          type: integer
+        - name: year
+          in: query
+          description: Année des transactions au format YYYY
+          required: true
+          type: integer
+        - name: month
+          in: query
+          description: Mois des transactions au format MM 01 à 12
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Transactions récupérées avec succès
+          schema:
+            type: array  # retourne un tableau
+            items:
+              $ref: "#/definitions/transactionBody"
+        '401':
+          description: Authentification requise pour accéder à la ressource.
+        '403':
+          description: Accès à la ressource refusé !
+        '404':
+          description: la ressource n'existe pas !
+        '500':
+          description: Erreur interne du serveur
+#
+# Récupération d'une transaction en fonction de son Id 
+#
+  /transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions Module
+      summary: Read 1 transaction
+      description: API pour récupérer le détail d'une seule transaction
+      security:
+        - Bearer: []
+      parameters:
+        - name: transactionId
+          in: path
+          description: ID de la transaction
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Détails de la transaction récupérés avec succès
+          schema:
+            $ref: "#/definitions/transactionBody"
+        '401':
+          description: Authentification requise pour accéder à la ressource.
+        '403':
+          description: Accès à la ressource refusé !
+        '404':
+          description: la ressource n'existe pas !
+        '500':
+          description: Erreur interne du serveur
+#
+# Modification d'une transaction en fonction de son Id (catégorie et note personnelle)
+#
+    patch:
+      tags:
+        - Transactions Module
+      summary: Update Transaction
+      description: API pour mettre à jour la catégorie et la note personnelle sur une transaction
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: transactionId
+          description: ID de la transaction
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Données de la transaction à modifier
+          required: true
+          schema:
+            type: object
+            properties:
+              categoryId:
+                description: Id de la catégorie
+                type: integer
+                example:  1
+              note:
+                description: Note de la transaction
+                type: string
+                example: "lorem ipsum"
+      responses:
+        '200':
+          description: La mise à jour a été efectuée avec succès
+          schema:
+            $ref: "#/definitions/transactionBody"
+        '401':
+          description: Authentification requise pour accéder à la ressource.
+        '403':
+          description: Accès à la ressource refusé !
+        '404':
+          description: la ressource n'existe pas !
+        '500':
+          description: Internal Server Error
+#
+# Récupération de la liste des categories établie par la banque
+#
+  /transaction_categories:
+    get:
+      tags:
+        - Categories Transactions Module
+      summary: Récupération de la liste des catégories de transaction définie par la banque
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Liste des catégories récupérée avec succès
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  description: Id de la catégorie
+                  example: 1
+                Name:
+                  type: string
+                  description: Libellé de la catégorie
+                  example: "Food"#
+        '401':
+          description: Authentification requise pour accéder à la ressource.
+        '500':
+          description: Erreur interne du serveur
+#
+securityDefinitions:
+#
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+#
+definitions:
+  User:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+      firstName:
+        type: string
+        description: user first name
+      lastName:
+        type: string
+        description: user last name
+      userName:
+        type: string
+        description: user public name
+  Login:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          id:
+            type: string
+          email:
+            type: string
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+  UserProfile:
+    type: object
+    properties:
+      userName:
+        type: string
+# 
+  transactionBody:
+    type: object
+    properties:
+      transactionId:
+        type: integer
+        description: Id de la transaction
+        example: 1
+      type:
+        type: string
+        description: Transaction type
+        example: "Electronic"
+      date:
+        type: string
+        format: date
+        description: Date AAAA-MM-JJ
+      description:
+        type: string
+        description: libellé de la transaction
+        example: "Golden Sun Bakery"
+      amount:
+        type: number
+        format: double
+        description: Amount = montant de la transaction
+        example: 123.45
+      balance:
+        type: number
+        format: double
+        description: Balance = solde après la transaction
+        example: 1234.56
+      categoryId:
+        type: integer
+        description: Id de la catégorie
+        example:  1
+      note:
+        type: string
+        description: Note de la transaction
+        example: "lorem ipsum"
+
